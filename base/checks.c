@@ -752,6 +752,9 @@ int handle_async_service_check_result(service *temp_service, check_result *queue
 		if(obsess_over_services == TRUE)
 			obsessive_compulsive_service_check_processor(temp_service);
 
+		/* before losing information in the service reset */
+		const int saved_state_type = temp_service->state_type;
+
 		/* reset all service variables because its okay now... */
 		temp_service->host_problem_at_last_check = FALSE;
 		temp_service->current_attempt = 1;
@@ -763,6 +766,16 @@ int handle_async_service_check_result(service *temp_service, check_result *queue
 		temp_service->problem_has_been_acknowledged = FALSE;
 		temp_service->acknowledgement_type = ACKNOWLEDGEMENT_NONE;
 		temp_service->notified_on = 0;
+
+		/* we log any change from SOFT to HARD state type happening during the reset */
+		if (temp_service->state_type != saved_state_type) {
+
+		    log_debug_info(DEBUGL_CHECKS, 1, "Service state type is reset to HARD state.\n");
+
+		    /* log the hard recovery */
+		    log_service_event(temp_service);
+		    state_was_logged = TRUE;
+		}
 
 		if(reschedule_check == TRUE)
 			next_service_check = (time_t)(temp_service->last_check + (temp_service->check_interval * interval_length));
