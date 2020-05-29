@@ -2,6 +2,11 @@
 Nagios Core 4 Change Log
 ########################
 
+4.2.3.7 - 2020-05-29
+--------------------
+FIXES
+* log the HARD state transition in nagios log just after the SOFT-RECOVERY
+
 4.2.3.6 - 2019-12-19
 --------------------
 FIXES
